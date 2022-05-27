@@ -1,6 +1,6 @@
 package io.alexdo.mixtech.jpa.repository.custom.impl;
 
-import io.alexdo.mixtech.api.dto.DisplayMatchResponse;
+import io.alexdo.mixtech.application.domain.MatchDisplay;
 import io.alexdo.mixtech.jpa.entity.MatchEntity;
 import io.alexdo.mixtech.jpa.repository.custom.MatchCustomRepository;
 import org.springframework.stereotype.Repository;
@@ -18,62 +18,53 @@ public class MatchCustomRepositoryImpl implements MatchCustomRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<DisplayMatchResponse> displayMatch(Long uid) {
-        return entityManager.createQuery("select New io.alexdo.mixtech..DisplayMatchResponse(m.mid, s1.sname, s2.sname)" +
+    public List<MatchDisplay> findCompleteMatchesByUid(Long uid) {
+        return entityManager.createQuery("select New io.alexdo.mixtech.application.domain.MatchDisplay(m.id, s1.name, s2.name)" +
                         " from MatchEntity m, SongEntity s1, SongEntity s2, CreatesEntity c " +
-                        "where m.spotifyUri1 = s1.spotifyID and m.spotifyUri2 = s2.spotifyID " +
-                        "and m.mid = c.mid and c.uid = ?1", DisplayMatchResponse.class)
+                        "where m.sid1 = s1.spotifyId and m.sid2 = s2.spotifyId " +
+                        "and m.id = c.mid and c.uid = ?1", MatchDisplay.class)
+                .setParameter(1, uid).getResultList();
+    }
+
+    @Override
+    public List<MatchDisplay> findIncompleteMatchesByUid(Long uid) {
+        return entityManager.createQuery("select New io.alexdo.mixtech.application.domain.MatchDisplay(m.id, s.name)" +
+                        " from MatchEntity m, SongEntity s, CreatesEntity c " +
+                        "where m.sid1 = s.spotifyId and m.sid2 IS NULL " +
+                        "and m.id = c.mid and c.uid = ?1", MatchDisplay.class)
                 .setParameter(1, uid).getResultList();
     }
 
     @Override
     @Transactional
-    public void addSongTwo(String spotifyUri2, Long mid) {
-        entityManager.createNativeQuery("update matches set spotify_uri2 = ?1 where mid = ?2")
-                .setParameter(1, spotifyUri2)
+    public void pair(Long mid, String sid2) {
+        entityManager.createNativeQuery("update matches set sid2 = ?1 where id = ?2")
+                .setParameter(1, sid2)
                 .setParameter(2, mid).executeUpdate();
     }
 
     @Override
-    public List<DisplayMatchResponse> displayCompleteMatch(Long uid) {
-        return entityManager.createQuery("select New io.alexdo.mixtech.api.dto.DisplayMatchResponse(m.mid, s1.sname, s2.sname)" +
-                        " from MatchEntity m, SongEntity s1, SongEntity s2, CreatesEntity c " +
-                        "where m.spotifyUri1 = s1.spotifyID and m.spotifyUri2 = s2.spotifyID " +
-                        "and m.mid = c.mid and c.uid = ?1", DisplayMatchResponse.class)
-                .setParameter(1, uid).getResultList();
-    }
-
-    @Override
-    public List<DisplayMatchResponse> displayIncompleteMatch(Long uid) {
-        return entityManager.createQuery("select New io.alexdo.mixtech.api.dto.DisplayMatchResponse(m.mid, s.sname)" +
-                        " from MatchEntity m, SongEntity s, CreatesEntity c " +
-                        "where m.spotifyUri1 = s.spotifyID and m.spotifyUri2 IS NULL " +
-                        "and m.mid = c.mid and c.uid = ?1", DisplayMatchResponse.class)
-                .setParameter(1, uid).getResultList();
-    }
-
-    @Override
-    public List<DisplayMatchResponse> displayAllMatchBySname(String sname) {
-        return entityManager.createQuery("select distinct New io.alexdo.mixtech.api.dto.DisplayMatchResponse(m.mid, s1.sname, s2.sname)" +
-                        " from MatchEntity m, SongEntity s1, SongEntity s2 " +
-                        "where (s1.sname like ?1 or s2.sname like ?1) " +
-                        "and m.spotifyUri1 = s1.spotifyID and m.spotifyUri2 = s2.spotifyID ", DisplayMatchResponse.class)
-                .setParameter(1, sname).getResultList();
-    }
-
-    @Override
-    public MatchEntity getMatchBySongs(String spotifyUri1, String spotifyUri2, Long uid) {
+    public MatchEntity findByUidAndSongIds(Long uid, String sid1, String sid2) {
         Query query = entityManager.createNativeQuery("select m.* from matches m, creates c " +
-                        "where c.mid = m.mid and m.spotify_uri1 = ?1 and m.spotify_uri2 = ?2 " +
+                        "where c.mid = m.id and m.sid1 = ?1 and m.sid2 = ?2 " +
                         "and c.uid = ?3", MatchEntity.class)
-                .setParameter(1, spotifyUri1)
-                .setParameter(2, spotifyUri2)
+                .setParameter(1, sid1)
+                .setParameter(2, sid2)
                 .setParameter(3, uid);
         try {
-            MatchEntity matchEntity = (MatchEntity) query.getSingleResult();
-            return matchEntity;
+            return (MatchEntity) query.getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
+    }
+
+    @Override
+    public List<MatchDisplay> findAllBySongName(String songName) {
+        return entityManager.createQuery("select distinct New io.alexdo.mixtech.application.domain.MatchDisplay(m.id, s1.name, s2.name) " +
+                        "from MatchEntity m " +
+                        "inner join SongEntity s1 on m.sid1 = s1.spotifyId " +
+                        "left join SongEntity s2 on m.sid2 = s2.spotifyId " +
+                        "where s1.name like ?1 or s2.name like ?1", MatchDisplay.class)
+                .setParameter(1, songName).getResultList();
     }
 }

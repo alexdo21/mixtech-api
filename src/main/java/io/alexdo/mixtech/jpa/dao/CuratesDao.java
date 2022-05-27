@@ -1,15 +1,13 @@
 package io.alexdo.mixtech.jpa.dao;
 
-
-import io.alexdo.mixtech.jpa.entity.CuratesEntity;
-import io.alexdo.mixtech.jpa.entity.PlaylistEntity;
-import io.alexdo.mixtech.jpa.entity.key.CuratesKey;
+import io.alexdo.mixtech.application.domain.Curates;
+import io.alexdo.mixtech.application.domain.Playlist;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CuratesDao {
-    void save(CuratesEntity curatesEntity);
-    void deleteById(CuratesKey curatesKey);
-    CuratesEntity findOneByUidAndPid(Long uid, Long pid);
-    List<PlaylistEntity> findAllByUid(Long uid);
+    void save(Curates curates);
+    void deleteById(Long uid, Long pid);
+    Optional<List<Playlist>> findAllByUid(Long uid);
 }

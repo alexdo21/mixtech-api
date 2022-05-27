@@ -2,10 +2,13 @@ package io.alexdo.mixtech.api.dto;
 
 import lombok.Data;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Data
 public class AdvanceSearchRequest {
-    private Integer skey;
-    private Integer smode;
+    private Integer key;
+    private Integer mode;
     private Float danceability0;
     private Float danceability1;
     private Float energy0;
@@ -24,4 +27,19 @@ public class AdvanceSearchRequest {
     private Float valence1;
     private Float tempo0;
     private Float tempo1;
+
+    @Override
+    public String toString() {
+        List<String> fields = Arrays.asList(key.toString(), mode.toString(),
+                danceability0.toString(), danceability1.toString(),
+                energy0.toString(), energy1.toString(),
+                loudness0.toString(), loudness1.toString(),
+                speechiness0.toString(), speechiness1.toString(),
+                acousticness0.toString(), acousticness1.toString(),
+                instrumentalness0.toString(), instrumentalness1.toString(),
+                liveness0.toString(), liveness1.toString(),
+                valence0.toString(), valence1.toString(),
+                tempo0.toString(), tempo1.toString());
+        return String.join(", ", fields);
+    }
 }

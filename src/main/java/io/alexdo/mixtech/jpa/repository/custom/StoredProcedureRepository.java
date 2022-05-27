@@ -1,9 +1,8 @@
 package io.alexdo.mixtech.jpa.repository.custom;
 
-import io.alexdo.mixtech.jpa.entity.PlaylistEntity;
+import io.alexdo.mixtech.application.domain.Playlist;
 
 public interface StoredProcedureRepository {
-    void createPlaylist(Long uid, PlaylistEntity playlistEntity);
+    void createPlaylist(Long uid, Playlist playlist);
     void removePlaylist(Long uid, Long pid);
-    void updatePlaylistPrivacy(Long pid, Integer privacy);
 }

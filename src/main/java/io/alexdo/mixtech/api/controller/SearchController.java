@@ -1,49 +1,79 @@
 package io.alexdo.mixtech.api.controller;
 
-import io.alexdo.mixtech.jpa.entity.SongEntity;
+import io.alexdo.mixtech.api.dto.SongResponse;
+import io.alexdo.mixtech.api.infrastructure.RestResponseConstant;
+import io.alexdo.mixtech.api.infrastructure.SecuredRestController;
 import io.alexdo.mixtech.api.dto.AdvanceSearchRequest;
-import io.alexdo.mixtech.api.dto.DisplayMatchResponse;
-import io.alexdo.mixtech.application.services.MatchService;
-import io.alexdo.mixtech.application.services.SongService;
+import io.alexdo.mixtech.application.domain.Song;
+import io.alexdo.mixtech.application.domain.exception.ResourceNotFoundException;
+import io.alexdo.mixtech.application.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/search")
 @RequiredArgsConstructor
-public class SearchController {
+public class SearchController extends SecuredRestController {
     private final SongService songService;
-    private final MatchService matchService;
 
-    @ResponseBody
-    @RequestMapping(value = "/basic_page", method = RequestMethod.GET)
-    public List<SongEntity> getAllSongsInPage(String name,
-                                              @RequestParam(value = "page", defaultValue = "0") int page,
-                                              @RequestParam(value = "size", defaultValue = "10") int size) {
-        return songService.getAllByNameInPage(name, page, size);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/basic_matches", method = RequestMethod.GET)
-    public List<DisplayMatchResponse> getAllMatchByName(@RequestParam String sname) {
-        return matchService.displayMatchBySnmae(sname);
-    }
-
-    @ResponseBody
     @RequestMapping(value = "/basic", method = RequestMethod.GET)
-    public List<SongEntity> getAllByName(@RequestParam String sname) {
-        return songService.getAllByName(sname);
+    public SongResponse getSongsBySongName(@RequestParam String songName) {
+        try {
+            List<Song> songs = songService.getAllByName(songName);
+            return SongResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .songs(songs)
+                    .build();
+        } catch (ResourceNotFoundException e) {
+            return SongResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/advance", method = RequestMethod.POST)
-    public List<SongEntity> getAllByAudioFeatures(@RequestBody AdvanceSearchRequest request) {
-        return songService.getAllByAudioFeatures(request);
+    @RequestMapping(value = "/basic/paged", method = RequestMethod.GET)
+    public SongResponse getPagedSongsBySongName(@RequestParam String songName,
+                                                @RequestParam(value = "page", defaultValue = "0") int page,
+                                                @RequestParam(value = "size", defaultValue = "10") int size) {
+        try {
+            List<Song> songs = songService.getAllByNameInPage(songName, page, size);
+            return SongResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .songs(songs)
+                    .build();
+        } catch (ResourceNotFoundException e) {
+            return SongResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "/advanced", method = RequestMethod.POST)
+    public SongResponse getSongsByAudioFeatures(@RequestBody AdvanceSearchRequest advanceSearchRequest) {
+        try {
+            List<Song> songs = songService.getAllByAudioFeatures(advanceSearchRequest);
+            return SongResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .songs(songs)
+                    .build();
+        } catch (ResourceNotFoundException e) {
+            return SongResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
     }
 }

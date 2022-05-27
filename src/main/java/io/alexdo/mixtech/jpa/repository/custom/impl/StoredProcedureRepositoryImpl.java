@@ -1,6 +1,6 @@
 package io.alexdo.mixtech.jpa.repository.custom.impl;
 
-import io.alexdo.mixtech.jpa.entity.PlaylistEntity;
+import io.alexdo.mixtech.application.domain.Playlist;
 import io.alexdo.mixtech.jpa.repository.custom.StoredProcedureRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,17 +15,15 @@ public class StoredProcedureRepositoryImpl implements StoredProcedureRepository 
     private EntityManager entityManager;
 
     @Override
-    public void createPlaylist(Long uid, PlaylistEntity playlistEntity) {
+    public void createPlaylist(Long uid, Playlist playlist) {
         StoredProcedureQuery storedProcedureQuery = entityManager.createStoredProcedureQuery("create_playlist");
         storedProcedureQuery.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
         storedProcedureQuery.registerStoredProcedureParameter(2, String.class, ParameterMode.IN);
-        storedProcedureQuery.registerStoredProcedureParameter(3, Integer.class, ParameterMode.IN);
         storedProcedureQuery.registerStoredProcedureParameter(4, String.class, ParameterMode.IN);
 
         storedProcedureQuery.setParameter(1, uid);
-        storedProcedureQuery.setParameter(2, playlistEntity.getPname());
-        storedProcedureQuery.setParameter(3, playlistEntity.getPrivacy());
-        storedProcedureQuery.setParameter(4, playlistEntity.getDescription());
+        storedProcedureQuery.setParameter(2, playlist.getName());
+        storedProcedureQuery.setParameter(4, playlist.getDescription());
 
         storedProcedureQuery.execute();
     }
@@ -38,18 +36,6 @@ public class StoredProcedureRepositoryImpl implements StoredProcedureRepository 
 
         storedProcedureQuery.setParameter(1, uid);
         storedProcedureQuery.setParameter(2, pid);
-
-        storedProcedureQuery.execute();
-    }
-
-    @Override
-    public void updatePlaylistPrivacy(Long pid, Integer privacy) {
-        StoredProcedureQuery storedProcedureQuery = entityManager.createStoredProcedureQuery("change_privacy");
-        storedProcedureQuery.registerStoredProcedureParameter(1, Long.class, ParameterMode.IN);
-        storedProcedureQuery.registerStoredProcedureParameter(2, Integer.class, ParameterMode.IN);
-
-        storedProcedureQuery.setParameter(1, pid);
-        storedProcedureQuery.setParameter(2, privacy);
 
         storedProcedureQuery.execute();
     }

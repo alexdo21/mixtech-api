@@ -1,87 +1,120 @@
 package io.alexdo.mixtech.api.controller;
 
-import io.alexdo.mixtech.jpa.entity.MatchEntity;
-import io.alexdo.mixtech.jpa.entity.SongEntity;
-import io.alexdo.mixtech.jpa.entity.key.CreatesKey;
-import io.alexdo.mixtech.api.dto.DisplayMatchResponse;
-import io.alexdo.mixtech.api.dto.StandardResponse;
-import io.alexdo.mixtech.application.services.CreatesService;
-import io.alexdo.mixtech.application.services.MatchService;
-import io.alexdo.mixtech.application.services.SongService;
-import io.alexdo.mixtech.api.infrastructure.security.utils.SystemConstant;
+import io.alexdo.mixtech.api.dto.MatchDisplayResponse;
+import io.alexdo.mixtech.api.dto.RestResponse;
+import io.alexdo.mixtech.api.infrastructure.RestResponseConstant;
+import io.alexdo.mixtech.api.infrastructure.SecuredRestController;
+import io.alexdo.mixtech.application.domain.MatchDisplay;
+import io.alexdo.mixtech.application.domain.exception.*;
+import io.alexdo.mixtech.application.service.MatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping(value = "/match")
 @RequiredArgsConstructor
-public class MatchController {
+public class MatchController extends SecuredRestController {
     private final MatchService matchService;
-    private final CreatesService createsService;
-    private final SongService songService;
 
-    @ResponseBody
-    @RequestMapping(value = "/getsongs/{mid}", method = RequestMethod.GET)
-    public List<SongEntity> getAllByMid(@PathVariable Long mid) {
-        MatchEntity matchEntity = matchService.getByMid(mid);
-        List<SongEntity> songs = new ArrayList<>();
-        songs.add(songService.getByID(matchEntity.getSpotifyUri1()));
-        songs.add(songService.getByID(matchEntity.getSpotifyUri2()));
-        return songs;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/all/{uid}", method = RequestMethod.GET)
-    public List<DisplayMatchResponse> displayMatchByUid(@PathVariable Long uid) {
-        return matchService.displayMatchByUid(uid);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/incomplete/{uid}", method = RequestMethod.GET)
-    public List<DisplayMatchResponse> displayIncompleteMatchByUid(@PathVariable Long uid) {
-        return matchService.displayIncompleteMatchByUid(uid);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/complete/{uid}", method = RequestMethod.GET)
-    public List<DisplayMatchResponse> displayCompleteMatchByUid(@PathVariable Long uid) {
-        return matchService.displayCompleteMatchByUid(uid);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/create/{uid}", method = RequestMethod.POST)
-    public void create(@RequestParam String spotifyUri1, @PathVariable Long uid) {
-        matchService.create(spotifyUri1, uid);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/addsong/{uid}/{mid}", method = RequestMethod.POST)
-    public StandardResponse addSong(@PathVariable Long uid, @PathVariable Long mid, @RequestParam String spotifyUri2) {
-        StandardResponse response = new StandardResponse();
-        int ret = matchService.addSong(spotifyUri2, mid, uid);
-        if (ret == SystemConstant.RET_ERR_DUPSONG) {
-            response.setRet(SystemConstant.RET_ERR);
-            response.setMsg(SystemConstant.MSG_MATCH_DUPSONG);
-        } else if (ret == SystemConstant.RET_ERR_DUPMATCH) {
-            response.setRet(SystemConstant.RET_ERR);
-            response.setMsg(SystemConstant.MSG_MATCH_DUPMATCH);
-        } else if (ret == SystemConstant.RET_SUC){
-            response.setRet(SystemConstant.RET_SUC);
-            response.setMsg(SystemConstant.MSG_SUCCESS);
-        } else {
-            response.setRet(SystemConstant.RET_ERR);
-            response.setMsg(SystemConstant.MSG_UNKNOWN_ERR);
+    @RequestMapping(value = "/complete", method = RequestMethod.GET)
+    public MatchDisplayResponse getCompleteMatches() {
+        try {
+            List<MatchDisplay> matchDisplays = matchService.getCompleteMatchesByUid(getCurrentUser().getId());
+            return MatchDisplayResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(MatchDisplay.class, getRequestUri()))
+                    .matchDisplays(matchDisplays)
+                    .build();
+        } catch (UserDoesNotExistException | ResourceNotFoundException e) {
+            return MatchDisplayResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(MatchDisplay.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
         }
-        return response;
     }
 
-    @RequestMapping(value = "/delete/{mid}/{uid}", method = RequestMethod.DELETE)
-    public void remove(@PathVariable Long mid, @PathVariable long uid) {
-        CreatesKey key = new CreatesKey(uid, mid);
-        createsService.remove(key);
-        matchService.remove(mid);
+    @RequestMapping(value = "/incomplete", method = RequestMethod.GET)
+    public MatchDisplayResponse getIncompleteMatches() {
+        try {
+            List<MatchDisplay> matchDisplays = matchService.getIncompleteMatchesByUid(getCurrentUser().getId());
+            return MatchDisplayResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(MatchDisplay.class, getRequestUri()))
+                    .matchDisplays(matchDisplays)
+                    .build();
+        } catch (UserDoesNotExistException | ResourceNotFoundException e) {
+            return MatchDisplayResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(MatchDisplay.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public MatchDisplayResponse getAllMatchesBySongName(@RequestParam String songName) {
+        try {
+            List<MatchDisplay> matchDisplays = matchService.getAllBySongName(songName);
+            return MatchDisplayResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(MatchDisplay.class, getRequestUri()))
+                    .matchDisplays(matchDisplays)
+                    .build();
+        } catch (ResourceNotFoundException e) {
+            return MatchDisplayResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(MatchDisplay.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public RestResponse createMatch(@RequestParam String songId1) {
+        try {
+            matchService.create(getCurrentUser().getId(), songId1);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (JpaUnableToSaveException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "/pair/{mid}", method = RequestMethod.POST)
+    public RestResponse pairMatch(@PathVariable Long mid, @RequestParam String songId2) {
+        try {
+            matchService.pair(getCurrentUser().getId(), mid, songId2);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (ResourceNotFoundException | MatchDuplicateSongException | MatchDuplicateMatchException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "/delete/{mid}", method = RequestMethod.DELETE)
+    public RestResponse deleteMatch(@PathVariable Long mid) {
+        try {
+            matchService.deleteByUidAndMid(getCurrentUser().getId(), mid);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (UserDoesNotExistException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
     }
 }

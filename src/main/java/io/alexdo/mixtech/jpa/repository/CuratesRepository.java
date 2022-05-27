@@ -5,5 +5,4 @@ import io.alexdo.mixtech.jpa.entity.key.CuratesKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CuratesRepository extends JpaRepository<CuratesEntity, CuratesKey> {
-    CuratesEntity findOneByUidAndPid(Long uid, Long pid);
 }

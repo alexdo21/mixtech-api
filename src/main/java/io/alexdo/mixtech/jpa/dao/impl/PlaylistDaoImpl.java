@@ -1,0 +1,28 @@
+package io.alexdo.mixtech.jpa.dao.impl;
+
+import io.alexdo.mixtech.application.domain.Playlist;
+import io.alexdo.mixtech.jpa.dao.PlaylistDao;
+import io.alexdo.mixtech.jpa.mapping.JpaPlaylistMapper;
+import io.alexdo.mixtech.jpa.repository.PlaylistRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class PlaylistDaoImpl implements PlaylistDao {
+    private final PlaylistRepository playlistRepository;
+    private final JpaPlaylistMapper jpaPlaylistMapper;
+
+
+    @Override
+    public Optional<Playlist> save(Playlist playlist) {
+        return Optional.ofNullable(jpaPlaylistMapper.jpaPlaylistToPlaylist(playlistRepository.save(jpaPlaylistMapper.playlistToJpaPlaylist(playlist))));
+    }
+
+    @Override
+    public void deleteById(Long pid) {
+        playlistRepository.deleteById(pid);
+    }
+}

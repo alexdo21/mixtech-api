@@ -1,13 +1,8 @@
 package io.alexdo.mixtech.jpa.dao;
 
-import io.alexdo.mixtech.jpa.entity.CreatesEntity;
-import io.alexdo.mixtech.jpa.entity.MatchEntity;
-import io.alexdo.mixtech.jpa.entity.key.CreatesKey;
-
-import java.util.List;
+import io.alexdo.mixtech.application.domain.Creates;
 
 public interface CreatesDao {
-    void save(CreatesEntity createsEntity);
-    void deleteById(CreatesKey key);
-    List<MatchEntity> findAllMatchesByUserId(Long uid);
+    void save(Creates creates);
+    void deleteById(Long uid, Long mid);
 }

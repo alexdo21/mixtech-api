@@ -1,17 +1,16 @@
 package io.alexdo.mixtech.jpa.repository.custom;
 
-import io.alexdo.mixtech.api.dto.DisplayMatchResponse;
+import io.alexdo.mixtech.application.domain.MatchDisplay;
 import io.alexdo.mixtech.jpa.entity.MatchEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface MatchCustomRepository {
-    List<DisplayMatchResponse> displayMatch(Long uid);
+    List<MatchDisplay> findCompleteMatchesByUid(Long uid);
+    List<MatchDisplay> findIncompleteMatchesByUid(Long uid);
     @Transactional
-    void addSongTwo(String spotifyUri2, Long mid);
-    List<DisplayMatchResponse> displayCompleteMatch(Long uid);
-    List<DisplayMatchResponse> displayIncompleteMatch(Long uid);
-    List<DisplayMatchResponse> displayAllMatchBySname(String sname);
-    MatchEntity getMatchBySongs(String spotifyUri1, String spotifyUri2, Long uid);
+    void pair(Long mid, String sid2);
+    MatchEntity findByUidAndSongIds(Long uid, String sid1, String sid2);
+    List<MatchDisplay> findAllBySongName(String songName);
 }

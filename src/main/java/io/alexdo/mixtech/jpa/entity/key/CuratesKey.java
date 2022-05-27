@@ -1,18 +1,15 @@
 package io.alexdo.mixtech.jpa.entity.key;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CuratesKey implements Serializable {
     private Long uid;
     private Long pid;
-
-    public CuratesKey() {}
-
-    public CuratesKey(Long uid, Long pid) {
-        this.uid = uid;
-        this.pid = pid;
-    }
 }

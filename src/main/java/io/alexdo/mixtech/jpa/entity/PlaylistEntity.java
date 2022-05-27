@@ -1,26 +1,18 @@
 package io.alexdo.mixtech.jpa.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "playlists")
-@Data // lombok plug-in; generate getter and setter
+@Getter
+@Setter
 public class PlaylistEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pid;
-
-    private String pname;
-    private int privacy;
+    private Long id;
+    private String name;
     private String description;
-
-    public PlaylistEntity() {}
-
-    public PlaylistEntity(String pname, int privacy, String description) {
-        this.pname = pname;
-        this.privacy = privacy;
-        this.description = description;
-    }
 }

@@ -1,8 +1,11 @@
 package io.alexdo.mixtech.jpa.dao;
 
-import io.alexdo.mixtech.jpa.entity.UserEntity;
+import io.alexdo.mixtech.application.domain.User;
+
+import java.util.Optional;
 
 public interface UserDao {
-    void save(UserEntity userEntity);
-    UserEntity findByEmail(String email);
+    void save(User user);
+    Optional<User> findByEmail(String email);
+    Optional<User> findBySpotifyId(String spotifyId);
 }

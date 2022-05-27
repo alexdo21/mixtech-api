@@ -1,11 +1,16 @@
 package io.alexdo.mixtech.api.controller;
 
-import io.alexdo.mixtech.jpa.entity.PlaylistEntity;
-import io.alexdo.mixtech.api.dto.StandardResponse;
-import io.alexdo.mixtech.application.services.CuratesService;
-import io.alexdo.mixtech.application.services.FollowsService;
-import io.alexdo.mixtech.application.services.PlaylistService;
-import io.alexdo.mixtech.api.infrastructure.security.utils.SystemConstant;
+import io.alexdo.mixtech.api.dto.PlaylistResponse;
+import io.alexdo.mixtech.api.dto.SongResponse;
+import io.alexdo.mixtech.api.dto.RestResponse;
+import io.alexdo.mixtech.api.infrastructure.RestResponseConstant;
+import io.alexdo.mixtech.api.infrastructure.SecuredRestController;
+import io.alexdo.mixtech.application.domain.Playlist;
+import io.alexdo.mixtech.application.domain.Song;
+import io.alexdo.mixtech.application.domain.exception.PlaylistDuplicateSongException;
+import io.alexdo.mixtech.application.domain.exception.ResourceNotFoundException;
+import io.alexdo.mixtech.application.domain.exception.UserDoesNotExistException;
+import io.alexdo.mixtech.application.service.PlaylistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,83 +19,102 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/playlist")
 @RequiredArgsConstructor
-public class PlaylistController {
+public class PlaylistController extends SecuredRestController {
     private final PlaylistService playlistService;
-    private final CuratesService curatesService;
-    private final FollowsService followsService;
 
-    @ResponseBody
-    @RequestMapping(value = "/all/{uid}", method = RequestMethod.GET)
-    public List<PlaylistEntity> getAllPlaylists(@PathVariable Long uid) {
-        return curatesService.getAllByUid(uid);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/display/{pid}", method = RequestMethod.GET)
-    public PlaylistEntity getPlaylistByPid(@PathVariable Long pid) {
-        return playlistService.getByPid(pid);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/all/following/{uid}", method = RequestMethod.GET)
-    public List<PlaylistEntity> getAllFollowingPlaylists(@PathVariable Long uid) {
-        return followsService.getAllByUid(uid);
-    }
-
-    @RequestMapping(value = "/create/{uid}", method = RequestMethod.POST)
-    public void create(@PathVariable Long uid, @RequestBody PlaylistEntity playlistEntity) {
-        playlistService.create(uid, playlistEntity);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/delete/{uid}/{pid}", method = RequestMethod.DELETE)
-    public StandardResponse remove(@PathVariable Long uid, @PathVariable Long pid) {
-        StandardResponse response = new StandardResponse();
-        if ( !playlistService.remove(uid, pid) ) {
-            response.setRet(SystemConstant.RET_ERR);
-            response.setMsg(SystemConstant.MSG_UNAUTH_ACCESS);
-        } else {
-            response.setRet(SystemConstant.RET_SUC);
-            response.setMsg(SystemConstant.MSG_SUCCESS);
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    public PlaylistResponse getAllPlaylists() {
+        try {
+            List<Playlist> playlists = playlistService.getAllByUid(getCurrentUser().getId());
+            return PlaylistResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(Playlist.class, getRequestUri()))
+                    .playlists(playlists)
+                    .build();
+        } catch (UserDoesNotExistException | ResourceNotFoundException e) {
+            return PlaylistResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(Playlist.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
         }
-        return response;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/privacy/{uid}/{pid}", method = RequestMethod.PUT)
-    public StandardResponse privacy(@PathVariable Long uid, @PathVariable Long pid, @RequestParam int privacy) {
-        StandardResponse response = new StandardResponse();
-        if ( !playlistService.privacy(uid, pid, privacy) ) {
-            response.setRet(SystemConstant.RET_ERR);
-            response.setMsg(SystemConstant.MSG_UNAUTH_ACCESS);
-        } else {
-            response.setRet(SystemConstant.RET_SUC);
-            response.setMsg(SystemConstant.MSG_SUCCESS);
+    @RequestMapping(value = "/songs/{pid}", method = RequestMethod.GET)
+    public SongResponse getAllSongsInPlaylist(@PathVariable Long pid) {
+        try {
+            List<Song> songs = playlistService.getAllSongsByPid(pid);
+            return SongResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .songs(songs)
+                    .build();
+        } catch (ResourceNotFoundException e) {
+            return SongResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
         }
-        return response;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/follow/{uid}/{pid}", method = RequestMethod.POST)
-    public StandardResponse follow(@PathVariable Long uid, @PathVariable Long pid) {
-        StandardResponse response = new StandardResponse();
-        if ( !followsService.follow(pid, uid)) {
-            response.setRet(SystemConstant.RET_ERR);
-            response.setMsg(SystemConstant.MSG_UNAUTH_ACCESS);
-        } else {
-            response.setRet(SystemConstant.RET_SUC);
-            response.setMsg(SystemConstant.MSG_SUCCESS);
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
+    public RestResponse createPlaylist(@RequestBody Playlist playlist) {
+        try {
+            playlistService.create(getCurrentUser().getId(), playlist);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (UserDoesNotExistException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
         }
-        return response;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/unfollow/{uid}/{pid}", method = RequestMethod.DELETE)
-    public StandardResponse unfollow(@PathVariable Long uid, @PathVariable Long pid) {
-        StandardResponse response = new StandardResponse();
-        followsService.unfollow(pid, uid);
-        response.setRet(SystemConstant.RET_SUC);
-        response.setMsg(SystemConstant.MSG_SUCCESS);
-        return response;
+    @RequestMapping(value = "/songs/add/{pid}", method = RequestMethod.POST)
+    public RestResponse addSongToPlaylist(@PathVariable Long pid, @RequestParam String songId) {
+        try {
+            playlistService.addSong(pid, songId);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (PlaylistDuplicateSongException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "/songs/delete/{pid}", method = RequestMethod.DELETE)
+    public RestResponse deleteSongFromPlaylist(@PathVariable Long pid, @RequestParam String songId) {
+        try {
+            playlistService.deleteSong(pid, songId);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (PlaylistDuplicateSongException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "/delete/{pid}", method = RequestMethod.DELETE)
+    public RestResponse deletePlaylist(@PathVariable Long pid) {
+        try {
+            playlistService.deleteByUidAndPid(getCurrentUser().getId(), pid);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (UserDoesNotExistException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
     }
 }

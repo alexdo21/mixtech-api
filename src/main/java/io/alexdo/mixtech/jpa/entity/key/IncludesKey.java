@@ -1,18 +1,15 @@
 package io.alexdo.mixtech.jpa.entity.key;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class IncludesKey implements Serializable {
-    private String spotifyUri;
     private Long pid;
-
-    public IncludesKey() {}
-
-    public IncludesKey(String spotify_uri, Long pid) {
-        this.spotifyUri = spotify_uri;
-        this.pid = pid;
-    }
+    private String sid;
 }

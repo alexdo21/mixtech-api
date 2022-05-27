@@ -14,7 +14,7 @@ public class IncludesCustomRepositoryImpl implements IncludesCustomRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<SongEntity> findAllByPid(Long pid) {
-        return entityManager.createNativeQuery("select s.* from song s, include i " + "where i.pid = ?1 and i.spotify_uri = s.spotify_uri", SongEntity.class).setParameter(1, pid).getResultList();
+    public List<SongEntity> findAllSongsByPid(Long pid) {
+        return entityManager.createNativeQuery("select s.* from songs s, includes i " + "where i.pid = ?1 and i.sid = s.spotify_id", SongEntity.class).setParameter(1, pid).getResultList();
     }
 }

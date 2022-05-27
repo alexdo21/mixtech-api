@@ -15,6 +15,6 @@ public class CuratesCustomRepositoryImpl implements CuratesCustomRepository {
 
     @Override
     public List<PlaylistEntity> findAllByUid(Long uid) {
-        return entityManager.createNativeQuery("SELECT p.* FROM curates c, playlists p " + "WHERE c.uid=?1 AND c.pid = p.pid", PlaylistEntity.class).setParameter(1, uid).getResultList();
+        return entityManager.createNativeQuery("SELECT p.* FROM curates c, playlists p " + "WHERE c.uid=?1 AND c.pid = p.id", PlaylistEntity.class).setParameter(1, uid).getResultList();
     }
 }
