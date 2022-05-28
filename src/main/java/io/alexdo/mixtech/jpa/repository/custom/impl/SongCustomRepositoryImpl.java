@@ -15,7 +15,6 @@ public class SongCustomRepositoryImpl implements SongCustomRepository {
 
     @Override
     public List<SongEntity> findAllByAudioFeatures(String query) {
-        System.out.println(query);
         return entityManager.createNativeQuery(query, SongEntity.class).getResultList();
     }
 }

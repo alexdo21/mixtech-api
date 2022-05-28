@@ -1,7 +1,5 @@
 package io.alexdo.mixtech.api.infrastructure.security.principal;
 
-import io.alexdo.mixtech.api.infrastructure.security.principal.SpotifyOAuth2User;
-import io.alexdo.mixtech.api.infrastructure.security.principal.SpotifyOAuth2UserInfo;
 import io.alexdo.mixtech.application.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -17,6 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SpotifyOAuth2UserService extends DefaultOAuth2UserService {
     private final SpotifyApi spotifyApi;
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
         Logger.logInfo("Getting access token", this);
