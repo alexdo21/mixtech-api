@@ -21,7 +21,7 @@ public class Song {
     private Float liveness;
     private Float valence;
     private Float tempo;
-    private Long durationMs;
+    private Integer durationMs;
     private Integer timeSignature;
     private Integer popularity;
 }

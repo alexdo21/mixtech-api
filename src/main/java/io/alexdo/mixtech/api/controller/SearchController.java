@@ -6,6 +6,7 @@ import io.alexdo.mixtech.api.infrastructure.SecuredRestController;
 import io.alexdo.mixtech.api.dto.AdvanceSearchRequest;
 import io.alexdo.mixtech.application.domain.Song;
 import io.alexdo.mixtech.application.domain.exception.ResourceNotFoundException;
+import io.alexdo.mixtech.application.domain.exception.SpotifyException;
 import io.alexdo.mixtech.application.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +23,15 @@ public class SearchController extends SecuredRestController {
     private final SongService songService;
 
     @RequestMapping(value = "/basic", method = RequestMethod.GET)
-    public SongResponse getSongsBySongName(@RequestParam String songName) {
+    public SongResponse getSongsByQuery(@RequestParam String query) {
         try {
-            List<Song> songs = songService.getAllByName(songName);
+            List<Song> songs = songService.getAllByQuery(query);
             return SongResponse.builder()
                     .status(RestResponseConstant.SUCCESS)
                     .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
                     .songs(songs)
                     .build();
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException | SpotifyException e) {
             return SongResponse.builder()
                     .status(RestResponseConstant.FAILURE)
                     .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))

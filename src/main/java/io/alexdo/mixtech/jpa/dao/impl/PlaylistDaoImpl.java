@@ -15,6 +15,10 @@ public class PlaylistDaoImpl implements PlaylistDao {
     private final PlaylistRepository playlistRepository;
     private final JpaPlaylistMapper jpaPlaylistMapper;
 
+    @Override
+    public Optional<Playlist> findById(Long pid) {
+        return Optional.ofNullable(jpaPlaylistMapper.jpaPlaylistToPlaylist(playlistRepository.findById(pid).orElse(null)));
+    }
 
     @Override
     public Optional<Playlist> save(Playlist playlist) {

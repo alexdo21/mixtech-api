@@ -12,4 +12,5 @@ public interface PlaylistService {
     void addSong(Long pid, String sid);
     void deleteSong(Long pid, String sid);
     void deleteByUidAndPid(Long uid, Long pid);
+    void addOnSpotify(String spotifyId, Long pid);
 }

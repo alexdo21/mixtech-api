@@ -10,6 +10,7 @@ import io.alexdo.mixtech.application.service.MatchService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
+    @Transactional
     public void create(Long uid, String songId1) {
         Match newMatch = matchDao.save(Match.builder().sid1(songId1).build()).orElseThrow(() -> new JpaUnableToSaveException("Server encountered error saving new match"));
         createsDao.save(Creates.builder().uid(uid).mid(newMatch.getId()).build());
@@ -49,6 +51,7 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
+    @Transactional
     public void deleteByUidAndMid(Long uid, Long mid) {
         createsDao.deleteById(uid, mid);
         matchDao.deleteById(mid);

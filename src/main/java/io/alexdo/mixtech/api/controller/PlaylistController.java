@@ -9,6 +9,7 @@ import io.alexdo.mixtech.application.domain.Playlist;
 import io.alexdo.mixtech.application.domain.Song;
 import io.alexdo.mixtech.application.domain.exception.PlaylistDuplicateSongException;
 import io.alexdo.mixtech.application.domain.exception.ResourceNotFoundException;
+import io.alexdo.mixtech.application.domain.exception.SpotifyException;
 import io.alexdo.mixtech.application.domain.exception.UserDoesNotExistException;
 import io.alexdo.mixtech.application.service.PlaylistService;
 import lombok.RequiredArgsConstructor;
@@ -111,6 +112,21 @@ public class PlaylistController extends SecuredRestController {
                     .status(RestResponseConstant.SUCCESS)
                     .build();
         } catch (UserDoesNotExistException e) {
+            return RestResponse.builder()
+                    .status(RestResponseConstant.FAILURE)
+                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "/add/spotify/{pid}", method = RequestMethod.POST)
+    public RestResponse addPlaylistOnSpotify(@PathVariable Long pid) {
+        try {
+            playlistService.addOnSpotify(getCurrentUser().getSpotifyId(), pid);
+            return RestResponse.builder()
+                    .status(RestResponseConstant.SUCCESS)
+                    .build();
+        } catch (UserDoesNotExistException | ResourceNotFoundException | SpotifyException e) {
             return RestResponse.builder()
                     .status(RestResponseConstant.FAILURE)
                     .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
