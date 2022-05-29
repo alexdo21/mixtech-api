@@ -22,8 +22,8 @@ public class SongDaoImpl implements SongDao {
     private final JpaSongMapper jpaSongMapper;
 
     @Override
-    public Optional<List<Song>> findByNameLike(String name, Sort sort) {
-        return Optional.ofNullable(jpaSongMapper.jpaSongsToSongs(songRepository.findByNameLike(name, sort)));
+    public Optional<List<Song>> findByNameLike(String name) {
+        return Optional.ofNullable(jpaSongMapper.jpaSongsToSongs(songRepository.findByNameLike("%" + name + "%", Sort.by(Sort.Direction.DESC, "popularity"))));
     }
 
     @Override

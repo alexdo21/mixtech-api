@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SongDao {
-    Optional<List<Song>> findByNameLike(String name, Sort sort);
+    Optional<List<Song>> findByNameLike(String name);
     Optional<List<Song>> findByNameLike(String name, Pageable pageable);
     Optional<List<Song>> findAllByAudioFeatures(AdvanceSearchRequest advanceSearchRequest);
 }

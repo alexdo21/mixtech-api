@@ -17,7 +17,6 @@ import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -27,18 +26,13 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public List<Song> getAllByQuery(String query) {
-        List<Song> mixTechSongs = songDao.findByNameLike("%" + query + "%", Sort.by(Sort.Direction.DESC, "popularity")).orElseThrow(() -> new ResourceNotFoundException("Song not found for song name: " + query));
-        List<Song> spotifySongs;
+        List<Song> songs = songDao.findByNameLike(query).orElseThrow(() -> new ResourceNotFoundException("Song not found for song name: " + query));
         try {
-            spotifySongs = spotifySearchClient.searchTracks(query);
+            songs.addAll(spotifySearchClient.searchTracks(query));
         } catch (IOException | ParseException | SpotifyWebApiException e) {
             throw new SpotifyException("Spotify exception occurred with message: " + e.getMessage());
         }
-        List<Song> songs = new ArrayList<>(Stream.of(mixTechSongs, spotifySongs)
-                .flatMap(Collection::stream)
-                .distinct().toList());
-        songs.sort(Comparator.comparing(Song::getPopularity).reversed());
-        return songs;
+        return new ArrayList<>(songs.stream().distinct().sorted(Comparator.comparing(Song::getPopularity).reversed()).toList());
     }
 
     @Override
