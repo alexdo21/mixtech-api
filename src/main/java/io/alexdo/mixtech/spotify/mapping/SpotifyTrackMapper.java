@@ -11,6 +11,7 @@ import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.AudioFeatures;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetAudioFeaturesForTrackRequest;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,13 +23,33 @@ import java.util.Objects;
 public class SpotifyTrackMapper {
     private final SpotifyApi spotifyApi;
 
-    public Song spotifyTrackToSong(Track track) {
-        return null;
+    public Song spotifyTrackToSong(Track track) throws IOException, ParseException, SpotifyWebApiException {
+        AudioFeatures audioFeatures = getAudioFeaturesForTrack(track);
+        return Song.builder()
+                .spotifyId(track.getId())
+                .name(track.getName())
+                .albumName(track.getAlbum().getName())
+                .artistName(Arrays.stream(track.getArtists()).filter(Objects::nonNull).map(ArtistSimplified::getName).filter(Objects::nonNull).findFirst().orElse(null))
+                .danceability(audioFeatures.getDanceability())
+                .energy(audioFeatures.getEnergy())
+                .key(audioFeatures.getKey())
+                .loudness(audioFeatures.getLoudness())
+                .mode(audioFeatures.getMode().getType())
+                .speechiness(audioFeatures.getSpeechiness())
+                .acousticness(audioFeatures.getAcousticness())
+                .instrumentalness(audioFeatures.getInstrumentalness())
+                .liveness(audioFeatures.getLiveness())
+                .valence(audioFeatures.getValence())
+                .tempo(audioFeatures.getTempo())
+                .durationMs(audioFeatures.getDurationMs())
+                .timeSignature(audioFeatures.getTimeSignature())
+                .popularity(track.getPopularity())
+                .build();
     }
 
     public List<Song> spotifyTracksToSongs(List<Track> tracks) throws IOException, ParseException, SpotifyWebApiException {
-        List<AudioFeatures> audioFeatures = getAudioFeaturesForTracks(tracks);
-        return Streams.zip(tracks.stream(), audioFeatures.stream(), (track, audioFeature) ->
+        List<AudioFeatures> audioFeaturesList = getAudioFeaturesForTracks(tracks);
+        return Streams.zip(tracks.stream(), audioFeaturesList.stream(), (track, audioFeature) ->
                 Song.builder()
                         .spotifyId(track.getId())
                         .name(track.getName())
@@ -52,8 +73,9 @@ public class SpotifyTrackMapper {
                 ).toList();
     }
 
-    private AudioFeatures getAudioFeaturesForTrack(Track track) {
-        return null;
+    private AudioFeatures getAudioFeaturesForTrack(Track track) throws IOException, ParseException, SpotifyWebApiException {
+        GetAudioFeaturesForTrackRequest getAudioFeaturesForTrackRequest = spotifyApi.getAudioFeaturesForTrack(track.getId()).build();
+        return getAudioFeaturesForTrackRequest.execute();
     }
 
     private List<AudioFeatures> getAudioFeaturesForTracks(List<Track> tracks) throws IOException, ParseException, SpotifyWebApiException {

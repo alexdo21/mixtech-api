@@ -10,4 +10,5 @@ import java.util.List;
 
 public interface SpotifyPlaylistClient {
     void createPlaylistWithSongs(String spotifyId, Playlist playlist, List<Song> songs) throws IOException, ParseException, SpotifyWebApiException;
+    void addNewSongsToExistingPlaylist(Playlist playlist, List<Song> songs) throws IOException, ParseException, SpotifyWebApiException;
 }

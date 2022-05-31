@@ -5,7 +5,7 @@ import io.alexdo.mixtech.api.mapping.OAuth2UserMapper;
 import io.alexdo.mixtech.application.domain.User;
 import io.alexdo.mixtech.application.domain.exception.UserDoesNotExistException;
 import io.alexdo.mixtech.application.logging.Logger;
-import io.alexdo.mixtech.application.service.UserService;
+import io.alexdo.mixtech.application.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

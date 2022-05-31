@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface SongRepository extends JpaRepository<SongEntity, String> {
-    List<SongEntity> findByNameLike(String name, Sort sort);
     SongEntity findBySpotifyId(String spotifyId);
+    List<SongEntity> findByNameLike(String name, Sort sort);
     List<SongEntity> findByNameLike(String name, Pageable pageable);
 }

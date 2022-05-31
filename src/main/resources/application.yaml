@@ -19,9 +19,11 @@ spring:
               - playlist-read-collaborative
               - playlist-modify-public
               - playlist-read-private
+              - playlist-modify-private
               - user-modify-playback-state
               - user-read-playback-state
               - user-read-currently-playing
+              - streaming
         provider:
           spotify:
             authorization-uri: https://accounts.spotify.com/authorize

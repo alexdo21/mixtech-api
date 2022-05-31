@@ -7,6 +7,6 @@ import lombok.Data;
 @Builder
 public class Match {
     private Long id;
-    private String sid1;
-    private String sid2;
+    private Song song1;
+    private Song song2;
 }

@@ -6,7 +6,7 @@ import io.alexdo.mixtech.api.infrastructure.security.cryptography.TokenProvider;
 import io.alexdo.mixtech.api.infrastructure.security.cryptography.HttpCookieOAuth2AuthorizationRequestRepository;
 import io.alexdo.mixtech.api.mapping.OAuth2UserMapper;
 import io.alexdo.mixtech.application.logging.Logger;
-import io.alexdo.mixtech.application.service.UserService;
+import io.alexdo.mixtech.application.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;

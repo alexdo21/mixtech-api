@@ -13,14 +13,12 @@ import se.michaelthelin.spotify.SpotifyHttpManager;
 public class SpotifyConfiguration {
     private String clientId;
     private String clientSecret;
-    private String redirectUri;
 
     @Bean
     public SpotifyApi spotifyApi() {
         return new SpotifyApi.Builder()
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)
-                .setRedirectUri(SpotifyHttpManager.makeUri(redirectUri))
                 .build();
     }
 }

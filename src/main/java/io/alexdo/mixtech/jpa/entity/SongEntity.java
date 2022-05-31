@@ -17,6 +17,7 @@ public class SongEntity {
     private String artistName;
     private Float danceability;
     private Float energy;
+    @Column(name = "\"key\"")
     private Integer key;
     private Float loudness;
     private Integer mode;

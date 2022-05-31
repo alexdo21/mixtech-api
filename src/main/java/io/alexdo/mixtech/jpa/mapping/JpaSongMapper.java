@@ -11,4 +11,5 @@ import java.util.List;
 public abstract class JpaSongMapper {
     public abstract Song jpaSongToSong(SongEntity songEntity);
     public abstract List<Song> jpaSongsToSongs(List<SongEntity> songEntities);
+    public abstract SongEntity songToJpaSong(Song song);
 }

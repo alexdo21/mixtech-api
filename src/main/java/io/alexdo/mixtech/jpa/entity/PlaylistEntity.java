@@ -15,4 +15,5 @@ public class PlaylistEntity {
     private Long id;
     private String name;
     private String description;
+    private String spotifyId;
 }
