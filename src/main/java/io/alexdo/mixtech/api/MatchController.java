@@ -117,19 +117,4 @@ public class MatchController extends SecuredRestController {
                     .build();
         }
     }
-
-    @RequestMapping(value = "/complete/add/playlist/{mid}/{pid}", method = RequestMethod.POST)
-    public RestResponse addCompleteMatchToPlaylist(@PathVariable Long mid, @PathVariable Long pid) {
-        try {
-            matchService.addCompleteToPlaylist(mid, pid);
-            return RestResponse.builder()
-                    .status(RestResponseConstant.SUCCESS)
-                    .build();
-        } catch (ResourceNotFoundException | BothCompleteMatchSongsInPlaylistException e) {
-            return RestResponse.builder()
-                    .status(RestResponseConstant.FAILURE)
-                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
-                    .build();
-        }
-    }
 }

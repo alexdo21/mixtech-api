@@ -14,14 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MatchServiceImpl implements MatchService {
     private final MatchDao matchDao;
     private final CreatesDao createsDao;
-    private final IncludesDao includesDao;
     private final SongService songService;
 
     @Override
@@ -72,22 +70,5 @@ public class MatchServiceImpl implements MatchService {
     public List<Match> getCompleteBySongName(String songName) {
         List<Match> matches = matchDao.findAllBySongName(songName).orElseThrow(() -> new ResourceNotFoundException("No matches found with song name: " + songName));
         return matches.stream().filter(match -> Objects.nonNull(match.getSong1()) && Objects.nonNull(match.getSong2())).toList();
-    }
-
-    @Override
-    @Transactional
-    public void addCompleteToPlaylist(Long mid, Long pid) {
-        Match match = matchDao.findById(mid).orElseThrow(() -> new ResourceNotFoundException("No match found"));
-        Optional<Includes> includesSong1 = includesDao.findByPidAndSid(pid, match.getSong1().getSpotifyId());
-        Optional<Includes> includesSong2 = includesDao.findByPidAndSid(pid, match.getSong2().getSpotifyId());
-        if (includesSong1.isPresent() && includesSong2.isPresent()) {
-            throw new BothCompleteMatchSongsInPlaylistException("Both songs in complete match already in playlist");
-        }
-        if (includesSong1.isEmpty()) {
-            includesDao.save(Includes.builder().pid(pid).sid(match.getSong1().getSpotifyId()).build());
-        }
-        if (includesSong2.isEmpty()) {
-            includesDao.save(Includes.builder().pid(pid).sid(match.getSong2().getSpotifyId()).build());
-        }
     }
 }

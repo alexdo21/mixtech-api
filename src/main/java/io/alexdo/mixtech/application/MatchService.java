@@ -11,5 +11,4 @@ public interface MatchService {
     void pair(Long uid, Long mid, String sid2);
     void deleteByUidAndMid(Long uid, Long mid);
     List<Match> getCompleteBySongName(String songName);
-    void addCompleteToPlaylist(Long mid, Long pid);
 }
