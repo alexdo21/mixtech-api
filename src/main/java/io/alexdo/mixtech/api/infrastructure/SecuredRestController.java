@@ -5,7 +5,6 @@ import io.alexdo.mixtech.api.infrastructure.security.principal.SpotifyOAuth2User
 import io.alexdo.mixtech.application.domain.User;
 import io.alexdo.mixtech.application.domain.exception.UserDoesNotExistException;
 import io.alexdo.mixtech.application.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,13 +13,16 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Objects;
 
-@RequiredArgsConstructor
 public class SecuredRestController implements DefaultMethodSecurity {
     @Autowired
     private UserService userService;
 
+    protected Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
     private SpotifyOAuth2User getCurrentSpotifyUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = getAuthentication();
         return (SpotifyOAuth2User) authentication.getPrincipal();
     }
 
@@ -31,6 +33,7 @@ public class SecuredRestController implements DefaultMethodSecurity {
     protected User getCurrentUser() throws UserDoesNotExistException {
         return userService.getBySpotifyId(getSpotifyId());
     }
+
     protected String getRequestUri() {
         return ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest().getRequestURI();
     }

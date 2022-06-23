@@ -7,7 +7,6 @@ import io.alexdo.mixtech.api.infrastructure.RestResponseConstant;
 import io.alexdo.mixtech.api.infrastructure.SecuredRestController;
 import io.alexdo.mixtech.application.UserService;
 import io.alexdo.mixtech.application.domain.User;
-import io.alexdo.mixtech.application.domain.exception.NoUserAccessTokenException;
 import io.alexdo.mixtech.application.domain.exception.SpotifyException;
 import io.alexdo.mixtech.application.domain.exception.UserDoesNotExistException;
 import io.alexdo.mixtech.application.SongService;
@@ -41,14 +40,24 @@ public class UserController extends SecuredRestController {
 
     @RequestMapping(value = "/access-token", method = RequestMethod.GET)
     public AccessTokenResponse getUserAccessToken() {
+        String accessToken = userService.getUserAccessToken();
+        return AccessTokenResponse.builder()
+                .status(RestResponseConstant.SUCCESS)
+                .description(RestResponseConstant.DESCRIPTION(String.class, getRequestUri()))
+                .accessToken(accessToken)
+                .build();
+    }
+
+    @RequestMapping(value = "/refresh-token", method = RequestMethod.GET)
+    public AccessTokenResponse getRefreshToken() {
         try {
-            String accessToken = userService.getUserAccessToken();
+            String refreshToken = userService.getRefreshToken(getAuthentication());
             return AccessTokenResponse.builder()
                     .status(RestResponseConstant.SUCCESS)
                     .description(RestResponseConstant.DESCRIPTION(String.class, getRequestUri()))
-                    .accessToken(accessToken)
+                    .accessToken(refreshToken)
                     .build();
-        } catch (NoUserAccessTokenException e) {
+        } catch (SpotifyException e) {
             return AccessTokenResponse.builder()
                     .status(RestResponseConstant.FAILURE)
                     .description(RestResponseConstant.DESCRIPTION(String.class, getRequestUri()))

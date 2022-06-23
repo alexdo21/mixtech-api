@@ -14,12 +14,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class SpotifyOAuth2UserService extends DefaultOAuth2UserService {
-    private final SpotifyApi spotifyApi;
-
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
         Logger.logInfo("Getting access token", this);
-        spotifyApi.setAccessToken(oAuth2UserRequest.getAccessToken().getTokenValue());
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
         Map<String, Object> oAuth2UserAttributes = oAuth2User.getAttributes();
         SpotifyOAuth2UserInfo spotifyOAuth2UserInfo = new SpotifyOAuth2UserInfo(oAuth2UserAttributes);
