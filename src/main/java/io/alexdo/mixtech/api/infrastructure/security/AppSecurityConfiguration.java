@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 public class AppSecurityConfiguration {
     private String tokenSecret;
-    private String tokenExpirationMSec;
+    private String tokenExpirationMilliSec;
     private String frontendRedirectUri;
 }

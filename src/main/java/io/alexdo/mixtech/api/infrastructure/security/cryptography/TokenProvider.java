@@ -18,10 +18,11 @@ public class TokenProvider {
     public String createToken(Authentication authentication) {
         SpotifyOAuth2User spotifyOAuth2User = (SpotifyOAuth2User) authentication.getPrincipal();
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + Long.parseLong(appSecurityConfiguration.getTokenExpirationMSec()));
+        Date expiryDate = new Date(now.getTime() + Long.parseLong(appSecurityConfiguration.getTokenExpirationMilliSec()));
+        Logger.logInfo(now + ", " + expiryDate, this);
         return Jwts.builder()
                 .setSubject(spotifyOAuth2User.getId())
-                .setIssuedAt(new Date())
+                .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, appSecurityConfiguration.getTokenSecret())
                 .compact();

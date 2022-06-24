@@ -1,6 +1,5 @@
 package io.alexdo.mixtech.api.infrastructure.security.cryptography;
 
-import io.alexdo.mixtech.api.infrastructure.security.cryptography.CookieUtils;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;

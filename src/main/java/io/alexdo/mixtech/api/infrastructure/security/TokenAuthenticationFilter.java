@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import se.michaelthelin.spotify.SpotifyApi;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -37,7 +36,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
             String accessToken = spotifyAuthorizationClient.getAccessToken();
-            Logger.logInfo("Receiving token from request filter: " + jwt, this);
             if ((StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) && (Objects.nonNull(accessToken) && !accessToken.isEmpty() && !accessToken.isBlank())) {
                 String userId = tokenProvider.getUserIdFromToken(jwt);
                 User user = userService.getBySpotifyId(userId);

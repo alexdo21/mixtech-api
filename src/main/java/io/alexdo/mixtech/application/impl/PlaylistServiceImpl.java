@@ -9,6 +9,7 @@ import io.alexdo.mixtech.application.domain.exception.PlaylistDuplicateSongExcep
 import io.alexdo.mixtech.application.domain.exception.ResourceNotFoundException;
 import io.alexdo.mixtech.application.domain.exception.SpotifyException;
 import io.alexdo.mixtech.application.SongService;
+import io.alexdo.mixtech.application.logging.Logger;
 import io.alexdo.mixtech.jpa.CuratesDao;
 import io.alexdo.mixtech.jpa.IncludesDao;
 import io.alexdo.mixtech.jpa.PlaylistDao;
@@ -36,23 +37,27 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     @Transactional
     public void create(Long uid, Playlist playlist) {
+        Logger.logInfo(String.format("Creating playlist %s", playlist.getName()), this);
         Playlist newPlaylist = playlistDao.save(playlist).orElseThrow(() -> new JpaUnableToSaveException("Server encountered error saving new playlist"));
         curatesDao.save(Curates.builder().uid(uid).pid(newPlaylist.getId()).build());
     }
 
     @Override
     public List<Playlist> getAllByUid(Long uid) {
+        Logger.logInfo(String.format("Getting all playlists for %d", uid), this);
         return curatesDao.findAllByUid(uid).orElseThrow(() -> new ResourceNotFoundException("Playlists not found"));
     }
 
     @Override
     public List<Song> getAllSongsByPid(Long pid) {
+        Logger.logInfo(String.format("Getting all songs in playlist %d", pid), this);
         return includesDao.findAllSongsByPid(pid).orElseThrow(() -> new ResourceNotFoundException("No songs found for playlist: " + pid));
     }
 
     @Override
     @Transactional
     public void addSong(Long pid, String sid) {
+        Logger.logInfo(String.format("Add song %s to playlist %d", sid, pid), this);
         if (includesDao.findByPidAndSid(pid, sid).isPresent()) {
             throw new PlaylistDuplicateSongException(String.format("Song with %s already exists for Playlist %s", sid, pid));
         }
@@ -62,12 +67,14 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     @Override
     public void deleteSong(Long pid, String sid) {
+        Logger.logInfo(String.format("Deleting song %s from playlist %d", sid, pid), this);
         includesDao.deleteById(pid, sid);
     }
 
     @Override
     @Transactional
     public void deleteByUidAndPid(Long uid, Long pid) {
+        Logger.logInfo(String.format("Deleting playlist %d", pid), this);
         curatesDao.deleteById(uid, pid);
         includesDao.deleteByPid(pid);
         playlistDao.deleteById(pid);
@@ -76,6 +83,7 @@ public class PlaylistServiceImpl implements PlaylistService {
     @Override
     @Transactional
     public void addToSpotify(String spotifyId, Long pid) {
+        Logger.logInfo(String.format("Adding playlist %d to spotify", pid), this);
         Playlist playlist = playlistDao.findById(pid).orElseThrow(() -> new ResourceNotFoundException("Playlist not found for id: " + pid));
         List<Song> songs = getAllSongsByPid(pid);
         try {

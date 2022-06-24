@@ -3,6 +3,7 @@ package io.alexdo.mixtech.application.impl;
 import io.alexdo.mixtech.application.domain.Song;
 import io.alexdo.mixtech.application.domain.exception.ResourceNotFoundException;
 import io.alexdo.mixtech.application.domain.exception.SpotifyException;
+import io.alexdo.mixtech.application.logging.Logger;
 import io.alexdo.mixtech.jpa.SongDao;
 import io.alexdo.mixtech.api.dto.AdvanceSearchRequest;
 import io.alexdo.mixtech.application.SongService;
@@ -30,6 +31,7 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public List<Song> getAllByQuery(String query) {
+        Logger.logInfo(String.format("Searching by query: %s", query), this);
         List<Song> songs = songDao.findByNameLike(query).orElseThrow(() -> new ResourceNotFoundException("Song not found for song name: " + query));
         try {
             songs.addAll(spotifySearchClient.searchTracks(query));
@@ -48,11 +50,13 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public List<Song> getAllByAudioFeatures(AdvanceSearchRequest advanceSearchRequest) {
+        Logger.logInfo(String.format("Searching by advanced query: %s", advanceSearchRequest.toString()), this);
         return songDao.findAllByAudioFeatures(advanceSearchRequest).orElseThrow(() -> new ResourceNotFoundException("Song not found for audio feature query of: " + advanceSearchRequest));
     }
 
     @Override
     public void saveBySpotifyIdIfDoesNotExist(String spotifyId) {
+        Logger.logInfo(String.format("Saving song %s to MixTech", spotifyId), this);
         if (songDao.findBySpotifyId(spotifyId).isEmpty()) {
             try {
                 songDao.save(spotifyTrackClient.getTrack(spotifyId));
@@ -64,6 +68,7 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public void start(String songId, String deviceId) {
+        Logger.logInfo("Starting song", this);
         try {
             spotifyPlayerClient.start(songId, deviceId);
         } catch (IOException | ParseException | SpotifyWebApiException e) {
@@ -73,6 +78,7 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public void resume(String deviceId) {
+        Logger.logInfo("Resuming song", this);
         try {
             spotifyPlayerClient.resume(deviceId);
         } catch (IOException | ParseException | SpotifyWebApiException e) {
@@ -82,6 +88,7 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public void pause(String deviceId) {
+        Logger.logInfo("Pausing song", this);
         try {
             spotifyPlayerClient.pause(deviceId);
         } catch (IOException | ParseException | SpotifyWebApiException e) {

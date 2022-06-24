@@ -37,5 +37,5 @@ server:
 
 app-security:
   tokenSecret: 926D96C90030DD58429D2751AC1BDBBC
-  tokenExpirationMSec: 3600000
+  tokenExpirationMilliSec: 3600000
   frontendRedirectUri: http://localhost:3000/oauth2/redirect

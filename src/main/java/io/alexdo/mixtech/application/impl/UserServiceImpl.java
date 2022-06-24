@@ -4,6 +4,7 @@ import io.alexdo.mixtech.api.infrastructure.security.cryptography.TokenProvider;
 import io.alexdo.mixtech.application.domain.User;
 import io.alexdo.mixtech.application.domain.exception.SpotifyException;
 import io.alexdo.mixtech.application.domain.exception.UserDoesNotExistException;
+import io.alexdo.mixtech.application.logging.Logger;
 import io.alexdo.mixtech.jpa.UserDao;
 import io.alexdo.mixtech.application.UserService;
 import io.alexdo.mixtech.spotify.SpotifyAuthorizationClient;
@@ -24,6 +25,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void create(User user) {
+        Logger.logInfo(String.format("Creating user for %s", user.getSpotifyId()), this);
         if (userDao.findByEmail(user.getEmail()).isEmpty()) {
             userDao.save(user);
         }
@@ -31,16 +33,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getBySpotifyId(String spotifyId) throws UserDoesNotExistException {
+        Logger.logInfo(String.format("Getting user for %s", spotifyId), this);
         return userDao.findBySpotifyId(spotifyId).orElseThrow(() -> new UserDoesNotExistException("User does not exist"));
     }
 
     @Override
     public String getUserAccessToken() {
+        Logger.logInfo("Getting user access token", this);
         return spotifyAuthorizationClient.getAccessToken();
     }
 
     @Override
     public String getRefreshToken(Authentication authentication) {
+        Logger.logInfo("Getting user refresh token", this);
         String token = tokenProvider.createToken(authentication);
         try {
             spotifyAuthorizationClient.refreshToken();
