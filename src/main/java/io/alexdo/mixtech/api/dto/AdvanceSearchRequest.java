@@ -9,6 +9,11 @@ import java.util.List;
 public class AdvanceSearchRequest {
     private Integer key;
     private Integer mode;
+    private Integer timeSignature;
+    private Long durationMs0;
+    private Long durationMs1;
+    private Float tempo0;
+    private Float tempo1;
     private Float danceability0;
     private Float danceability1;
     private Float energy0;
@@ -25,12 +30,12 @@ public class AdvanceSearchRequest {
     private Float liveness1;
     private Float valence0;
     private Float valence1;
-    private Float tempo0;
-    private Float tempo1;
 
     @Override
     public String toString() {
-        List<String> fields = Arrays.asList(key.toString(), mode.toString(),
+        List<String> fields = Arrays.asList(key.toString(), mode.toString(), timeSignature.toString(),
+                durationMs0.toString(), getDurationMs1().toString(),
+                tempo0.toString(), tempo1.toString(),
                 danceability0.toString(), danceability1.toString(),
                 energy0.toString(), energy1.toString(),
                 loudness0.toString(), loudness1.toString(),
@@ -38,8 +43,7 @@ public class AdvanceSearchRequest {
                 acousticness0.toString(), acousticness1.toString(),
                 instrumentalness0.toString(), instrumentalness1.toString(),
                 liveness0.toString(), liveness1.toString(),
-                valence0.toString(), valence1.toString(),
-                tempo0.toString(), tempo1.toString());
+                valence0.toString(), valence1.toString());
         return String.join(", ", fields);
     }
 }

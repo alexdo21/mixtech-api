@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mixtech
+    username: public
+    password: public123456
+app-security:
+  frontEndRedirectUri: http://localhost:3000/oauth2/redirect

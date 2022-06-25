@@ -43,7 +43,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         userService.create(oAuth2UserMapper.spotifyOAuth2UserToUser(spotifyOAuth2User));
         String token = tokenProvider.createToken(authentication);
         Logger.logInfo("Token created: " + token, this);
-        String targetUrl = UriComponentsBuilder.fromUriString(appSecurityConfiguration.getFrontendRedirectUri())
+        String targetUrl = UriComponentsBuilder.fromUriString(appSecurityConfiguration.getFrontEndRedirectUri())
                 .queryParam("token", token)
                 .build()
                 .toUriString();

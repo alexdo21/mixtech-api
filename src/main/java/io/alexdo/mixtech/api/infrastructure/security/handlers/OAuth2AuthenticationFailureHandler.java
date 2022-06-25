@@ -21,7 +21,7 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        String targetUrl = UriComponentsBuilder.fromUriString(appSecurityConfiguration.getFrontendRedirectUri())
+        String targetUrl = UriComponentsBuilder.fromUriString(appSecurityConfiguration.getFrontEndRedirectUri())
                 .queryParam("error", exception.getLocalizedMessage())
                 .build().toUriString();
         httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);

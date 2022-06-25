@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface SongService {
     List<Song> getAllByQuery(String query);
-    List<Song> getAllByNameInPage(String name, int page, int size);
     List<Song> getAllByAudioFeatures(AdvanceSearchRequest request);
     void saveBySpotifyIdIfDoesNotExist(String spotifyId);
     void start(String songId, String deviceId);

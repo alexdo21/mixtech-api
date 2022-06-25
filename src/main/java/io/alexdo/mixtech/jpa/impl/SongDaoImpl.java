@@ -42,11 +42,24 @@ public class SongDaoImpl implements SongDao {
         stringBuilder.append("select * from songs s where");
         stringBuilder.append(" s.key = ").append(request.getKey().toString());
         stringBuilder.append(" AND s.mode = ").append(request.getMode().toString());
+        stringBuilder.append(" AND s.time_signature = ").append(request.getTimeSignature().toString());
+        if (request.getDurationMs0() != 0) {
+            stringBuilder.append(" AND s.duration_ms >= ").append(request.getDurationMs0().toString());
+        }
+        if (request.getDurationMs1() != 60000) {
+            stringBuilder.append(" AND s.duration_ms <= ").append(request.getDurationMs1().toString());
+        }
         if (request.getDanceability0() != 0) {
             stringBuilder.append(" AND s.danceability >= ").append(request.getDanceability0().toString());
         }
         if (request.getDanceability1() != 1) {
             stringBuilder.append(" AND s.danceability <= ").append(request.getDanceability1().toString());
+        }
+        if (request.getTempo0() != 0) {
+            stringBuilder.append(" AND s.tempo >= ").append(request.getTempo0().toString());
+        }
+        if (request.getTempo1() != 250) {
+            stringBuilder.append(" AND s.tempo <= ").append(request.getTempo1().toString());
         }
         if (request.getEnergy0() != 0) {
             stringBuilder.append(" AND s.energy >= ").append(request.getEnergy0().toString());
@@ -89,12 +102,6 @@ public class SongDaoImpl implements SongDao {
         }
         if (request.getValence1() != 1) {
             stringBuilder.append(" AND s.valence <= ").append(request.getValence1().toString());
-        }
-        if (request.getTempo0() != 0) {
-            stringBuilder.append(" AND s.tempo >= ").append(request.getTempo0().toString());
-        }
-        if (request.getTempo1() != 250) {
-            stringBuilder.append(" AND s.tempo <= ").append(request.getTempo1().toString());
         }
         stringBuilder.append(" order by popularity desc;");
         return Optional.ofNullable(jpaSongMapper.jpaSongsToSongs(songCustomRepository.findAllByAudioFeatures(stringBuilder.toString())));

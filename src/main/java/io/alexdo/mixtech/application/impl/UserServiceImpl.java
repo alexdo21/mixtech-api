@@ -33,7 +33,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getBySpotifyId(String spotifyId) throws UserDoesNotExistException {
-        Logger.logInfo(String.format("Getting user for %s", spotifyId), this);
         return userDao.findBySpotifyId(spotifyId).orElseThrow(() -> new UserDoesNotExistException("User does not exist"));
     }
 

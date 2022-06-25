@@ -1,8 +1,4 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/mixtech
-    username: public
-    password: public123456
   security:
     oauth2:
       client:
@@ -30,12 +26,9 @@ spring:
             token-uri: https://accounts.spotify.com/api/token
             user-info-uri: https://api.spotify.com/v1/me
             user-name-attribute: email
-
 server:
   servlet:
     context-path: /api
-
 app-security:
   tokenSecret: 926D96C90030DD58429D2751AC1BDBBC
   tokenExpirationMilliSec: 3600000
-  frontendRedirectUri: http://localhost:3000/oauth2/redirect

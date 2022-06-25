@@ -40,26 +40,6 @@ public class SearchController extends SecuredRestController {
         }
     }
 
-    @RequestMapping(value = "/basic/paged", method = RequestMethod.GET)
-    public SongResponse getPagedSongsBySongName(@RequestParam String songName,
-                                                @RequestParam(value = "page", defaultValue = "0") int page,
-                                                @RequestParam(value = "size", defaultValue = "10") int size) {
-        try {
-            List<Song> songs = songService.getAllByNameInPage(songName, page, size);
-            return SongResponse.builder()
-                    .status(RestResponseConstant.SUCCESS)
-                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
-                    .songs(songs)
-                    .build();
-        } catch (ResourceNotFoundException e) {
-            return SongResponse.builder()
-                    .status(RestResponseConstant.FAILURE)
-                    .description(RestResponseConstant.DESCRIPTION(Song.class, getRequestUri()))
-                    .errorMessage(RestResponseConstant.ERROR(e.getClass(), e.getMessage()))
-                    .build();
-        }
-    }
-
     @RequestMapping(value = "/advanced", method = RequestMethod.POST)
     public SongResponse getSongsByAudioFeatures(@RequestBody AdvanceSearchRequest advanceSearchRequest) {
         try {

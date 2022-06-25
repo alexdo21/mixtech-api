@@ -12,9 +12,6 @@ import io.alexdo.mixtech.spotify.SpotifySearchClient;
 import io.alexdo.mixtech.spotify.SpotifyTrackClient;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 
@@ -39,13 +36,6 @@ public class SongServiceImpl implements SongService {
             throw new SpotifyException("Spotify exception occurred with message: " + e.getMessage());
         }
         return songs.stream().distinct().sorted(Comparator.comparing(Song::getPopularity).reversed()).toList();
-    }
-
-    @Override
-    public List<Song> getAllByNameInPage(String name, int page, int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "popularity");
-        Pageable pageable = PageRequest.of(page, size, sort);
-        return songDao.findByNameLike("%" + name + "%", pageable).orElseThrow(() -> new ResourceNotFoundException("Song not found for song name like: " + name));
     }
 
     @Override
