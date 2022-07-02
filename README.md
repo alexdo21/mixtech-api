@@ -2,6 +2,8 @@
 
 A web application to help DJs and Musicians mix and find similar songs by interfacing directly with Spotify’s metadata on audio features.
 
+[Click here to watch a demo of MixTech.](https://www.youtube.com/watch?v=SjTmeYfRfbo)
+
 The tech stack of MixTech is:
 - React front end using Redux, and other third party components most notably react-idle-timer, react-responsive-modal and react-input-range.
 - Java Spring Boot back end using a [Spotify API wrapper](https://github.com/spotify-web-api-java/spotify-web-api-java).
